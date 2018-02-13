@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+
+    <head>
+        <script src="https://d3js.org/d3.v3.js"></script> <!--Open D3.js Library-->
+
+        <!-- Define x-Axis class -->
+       <style type = "text/css">
+        .axis path, 
+        .axis line{
+            fill: none;
+            stroke: black;
+            shape-rendering: crispEdges;
+        }
+        .axis text{
+            font-family: sans-serif;
+            font-size: 11px;
+        }
+       </style>
+
+    </head>
+
+    <body>
+      <script type="text/javascript">
+        //Step 1: Output text title
+        var p = d3.select("body").append("p").text("Weather - Assignment"); 
+        p.style({"font-size":"40px","font-family":"arial"});
+        
+        //Step 2: Present toy data set
+        var data = [{"month": "January", "temperature": 5},
+                    {"month": "February", "temperature": 10},
+                    {"month": "March", "temperature": 15},
+                    {"month": "April", "temperature": 20},
+                    {"month": "May", "temperature": 25},
+                    {"month": "June", "temperature": 30},
+                    {"month": "July", "temperature": 30},
+                    {"month": "August", "temperature": 25},
+                    {"month": "September", "temperature": 20},
+                    {"month": "October", "temperature": 15},
+                    {"month": "November", "temperature": 10},
+                    {"month": "December", "temperature": 5}]
+
+        function getCol(matrix, col){
+         var column = [];
+         for(var i=0; i<matrix.length; i++){
+           column.push(matrix[i][col]);
+         }
+          return column;
+        }
+        
+        var months = getCol(data,"month");
+        var temp = getCol(data,"temperature");
+
+        var p1 = d3.select("body").append("p").text("Months: " + months);
+        var p2 = d3.select("body").append("p").text("Temperature: " + temp);
+        
+        //Step 3: Bar chart skeleton 
+            //Step 3.1: Create Scalable Vector Graphic for bar chart
+            var margin = {top:10, right:10, bottom:90, left:10}; //margins for axes
+            var w = 500 - margin.left - margin.right; 
+            var h = 200 - margin.top - margin.bottom;
+
+            var svg = d3.select("body").append("svg")
+            .attr("width", w + margin.left + margin.right)
+            .attr("height", h + margin.top + margin.bottom);
+               
+                //Setting up Scales 
+                var yScale = d3.scale.linear().domain([0, d3.max(temp)]).range([0,h]);
+                var xScale = d3.scale.ordinal().rangeRoundBands([0, w])
+
+                xScale.domain(data.map(function(d) { return d.month; }));
+
+            svg.selectAll("rect").data(temp).enter().append("rect") //Step 3.3: Create one rectangle for each data point we want to visualize
+            .attr("x", function(d, i) {
+                    return i *(w / temp.length); 
+                    })//Step 3.4: Visualize all rectangles by moving across the x-axis
+            .attr("y", 0)
+            .attr("width", 20)
+            .attr("height", function(d) {
+                   return d * 5; 
+                   })
+            .attr("y", function(d) {
+                return h - yScale(d); 
+                });//Step 3.5: Inverse table for user
+
+            //Extra: Add value labels
+            svg.selectAll("text").data(temp).enter().append("text")
+            .text(function(d) {
+                return d;
+                })
+            .attr("x", function(d, i) {
+                return i * (w / temp.length); // +5
+                })
+            .attr("y", function(d) {
+                return h - d; 
+                })
+            .attr("fill", "white");
+
+            //x-Axis
+            var xAxis = d3.svg.axis().scale(xScale).orient("bottom");
+            var yAxis = d3.svg.axis().scale(yScale).orient("left");
+
+            svg.append("g")
+            .attr("class", "axis") //Assign "axis" class
+            .attr("transform", "translate(0," + (h) + ")")
+            .call(xAxis);
+
+
+      </script>
+
+    </body>
+
+
+</html>
