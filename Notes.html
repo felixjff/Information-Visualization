@@ -1,0 +1,48 @@
+<!-- JavaScript Notes
+    Functions:
+    "functionname(){ //code}"  or "var functionname = function(){ //code}"
+    Functions can be definied within HTML documents, e.g. (java script)
+    "<script type ="text/javascript"> var functionname = function(){ //code} </script>"
+    Elements within HTML doc. can be reached using java, e.g. "img = document.getElementById("image")"
+    CSS styling of an element can be changed within JavaScript "elementvariable.style.propertyname = propertyvalue"
+    D3 is a library completely written in JS
+    Open library using "<script src="https://d3js.org/d3.v3.js"></script>"
+    D3 can be used for for method chaining, e.g. d3.select("...").append("...").text("...").style("...")
+    If mthods are too long, they can be shortened var p = d3.select("...").append(...).text(...)
+    p.style(...)
+    The order of the sequence is fundamental.
+    Useful D3 methods:
+    .selectAll(), .data(), .enter(), append(), .text(), .style(), .attr({...}), .max(), .min(), .filter()
+    array: var ... = [.,.,.,...];
+    With enter() a place holder is created. Use the iterator and "d" to refer to the 
+    place and the data value respectively.
+--> 
+
+<!-- CSS Notes
+    Purely used for website styling and formating.
+    Styling = rule setting in HTML file -> many possible rules, depends on wished designed
+    Rules can be defined within HTML classes, or within a specfic styling section for a 
+    specific id, e.g. "<style type="text/css">#id_value{style properties}</style>"
+    Style can be given to different type of elements, e.g. text, images, etc.
+    Different rules for different elements
+--> 
+
+<!-- HTML Notes
+    Comments: 
+    Currently used
+    Classes: 
+    Define using ".class_name{class properties}"
+    CSS-styling can be included in HTML classes directly
+    Refer to a specifc class within the tag definition, e.g. "class = class_name"
+    Tag definiton can be broad or short, depending if specific attributes, e.g. specific style or action
+      -> Good to learn spectrum of possible tag attributes!
+    Attributes entailing a user-action can be achieved using JavaScript
+    SVG:
+    D3 requires basic knowledge of Scalable Vector Graphics (SVG)
+    D3 coding is set within <script ...></script>
+    SVG -> does not lose any quality if zoomed or resized
+    Different possible shapes: lines "<line ...></line>", rectangles "<rect ...></rect>", circle "<circle ...></circle>, ellipse, polygon
+    Different attributes/properties for different shapes.
+    Added in html docs with tag "<svg></svg>" -> A graphic is the space where the shape is built.
+    If several shapes are within an SVG, it is handy to use groups to define common attributes, e.g. "<svg ...><g ...> c1 c2 </g></svg>"
+--> 
