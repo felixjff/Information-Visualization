@@ -1,3 +1,14 @@
+<!--Assignment 1: Create a dynamic table that presents the average temperature per month for a given year. The dable 
+                  should change dynamicaly to present the average temperature per month for different years.
+                  
+    Student: Felix Jose Farias Fueyo (UvA ID: 12180424)
+
+    Remarks from Student: I had a difficult time using d3.on() for the event reponse part of the assignment. Hence, 
+    I decided to use an alternative method. Also, I did not have time left to place the numeric labels appropiately. 
+    In the most simple case I managed to do this, but in the dynamic case I could have use some more debuging hours
+    to make it work.
+-->
+
 <!DOCTYPE html>
 <html>
 
@@ -14,20 +25,22 @@
         }
         .axis text{
             font-family: sans-serif;
-            font-size: 11px;
+            font-size: 8px;
         }
        </style>
 
     </head>
 
     <body>
+      <button id="Year">Click to Change Year: 2011 </button>
+      <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/lodash.js/0.10.0/lodash.min.js"></script>
       <script type="text/javascript">
         //Step 1: Output text title
         var p = d3.select("body").append("p").text("Weather - Assignment"); 
         p.style({"font-size":"40px","font-family":"arial"});
         
         //Step 2: Present toy data set
-        var data = [{"month": "January", "temperature": 5},
+        /*var data = [{"month": "January", "temperature": 5},
                     {"month": "February", "temperature": 10},
                     {"month": "March", "temperature": 15},
                     {"month": "April", "temperature": 20},
@@ -38,9 +51,165 @@
                     {"month": "September", "temperature": 20},
                     {"month": "October", "temperature": 15},
                     {"month": "November", "temperature": 10},
-                    {"month": "December", "temperature": 5}]
+                    {"month": "December", "temperature": 5}] */
 
-        function getCol(matrix, col){
+        //Step 2: Present real data set
+        d3.csv('meteo.csv', function(error, data){
+            //Transform all measures into numbers
+            // Convert strings to numbers.
+            data.forEach(function(d) {
+                d.year = +d.year;
+                d.month = +d.month;
+                d.day = +d.day;
+                d.temperature = +d.temperature;
+            });
+            //Use nest() function to asign two key levels. Key 1 is assigned for years. Key 2 is assigned for months. 
+            var weatherbymonth = d3.nest()
+                .key(function(d) {return d.year})
+                .key(function(d) {return d.month})
+                .rollup(function(v) {return Math.round(d3.mean(v, function(d){return d.temperature; })/10*10)/10 ; })
+                .map(data);
+
+            //Rename JSON property names
+            for(i = 0; i< _.range(2011,2015).length; i++){
+                i = _.range(2011,2015)[i];
+                weatherbymonth[i]['January']  = weatherbymonth[i]['1']; delete weatherbymonth[i]['1'];
+                weatherbymonth[i]['February']  = weatherbymonth[i]['2']; delete weatherbymonth[i]['2'];
+                weatherbymonth[i]['March']  = weatherbymonth[i]['3']; delete weatherbymonth[i]['3'];
+                weatherbymonth[i]['April']  = weatherbymonth[i]['4']; delete weatherbymonth[i]['4'];
+                weatherbymonth[i]['May']  = weatherbymonth[i]['5']; delete weatherbymonth[i]['5'];
+                weatherbymonth[i]['June']  = weatherbymonth[i]['6']; delete weatherbymonth[i]['6'];
+                weatherbymonth[i]['July']  = weatherbymonth[i]['7']; delete weatherbymonth[i]['7'];
+                weatherbymonth[i]['August']  = weatherbymonth[i]['8']; delete weatherbymonth[i]['8'];
+                weatherbymonth[i]['September']  = weatherbymonth[i]['9']; delete weatherbymonth[i]['9'];
+                weatherbymonth[i]['October']  = weatherbymonth[i]['10']; delete weatherbymonth[i]['10'];
+                weatherbymonth[i]['November']  = weatherbymonth[i]['11']; delete weatherbymonth[i]['11'];
+                weatherbymonth[i]['December']  = weatherbymonth[i]['12']; delete weatherbymonth[i]['12'];
+            }
+
+            //Year initialization 
+            var year = 2011;
+            //Store variables in most accessible manner
+            var months = Object.getOwnPropertyNames(weatherbymonth[year]);
+            var temp = Object.values(weatherbymonth[year]);
+
+            var data = {"months": months, "temperature": temp}
+            console.log(weatherbymonth[year])
+                
+            var p1 = d3.select("body").append("p").attr('id', 'p1').text("Months: " + months);
+            var p2 = d3.select("body").append("p").attr('id', 'p2').text("Temperature: " + temp);
+            
+            var margin = {top:30, right:10, bottom:50, left:20}; //margins for axes
+            var w = 500; 
+            var scalar = 14;
+            var temp_ =  temp.map(function(x){return x*scalar}) //scale all elements to enlarge the bars in the plot
+            var h = d3.max(temp_) + 65;
+            var svg = d3.select("body").append("svg")
+            .attr("width", w + margin.left + margin.right)
+            .attr("height", h + margin.top + margin.bottom);
+               
+            var yScale = d3.scale.linear().domain([0, d3.max(temp)]).range([300,0]);
+            var xScale = d3.scale.ordinal().rangeRoundBands([0, w])
+
+            //xScale.domain(data.map(function(d) { return d.month; }));
+            xScale.domain(months);
+
+            svg.selectAll("rect").data(temp_).enter().append("rect") //Step 3.3: Create one rectangle for each data point we want to visualize
+            .attr("x", function(d, i) {
+                    return margin.left + i*(w / temp.length); 
+                    })//Step 3.4: Visualize all rectangles by moving across the x-axis
+            .attr("y", function(d) {
+                return h - d + margin.bottom; 
+            })//Step 3.5: Inverse table for user
+            .attr("height", function(d) {
+                   return d; //Note that if we would apply scaling at this point, given that there is a margin, the bars would not be aligned.
+            })
+            .attr("width", xScale.rangeBand()); //In this case, the in-built function rangeBand() helps define proper widths for each category
+
+            //Extra: Add value labels
+            /*svg.selectAll("text").data(data).enter().append("text")
+            .text(function(d) {
+                return d["temperature"];
+                })
+            .attr("x", function(d) {
+                return xScale(d["months"]) + xScale.rangeBand() / 2; // x-position of white labels 
+                })
+            .attr("y", function(d) {
+                return h - d["temperature"] + margin.bottom; 
+                })
+            .attr("fill", "white");*/
+
+            //x-Axis
+            var xAxis = d3.svg.axis().scale(xScale).orient("bottom");
+            var yAxis = d3.svg.axis().scale(yScale).orient("left");
+
+            svg.append("g")
+            .attr("class", "axis") //Assign "axis" class -> in this way the stetics of the axis can be modified with CSS
+            .attr('id', 'xAxis')
+            .call(xAxis)
+            .attr("transform", "translate("+ margin.left + "," + (h + margin.bottom) + ")"); //Note: it is important to define operations within parenthesis!
+
+            svg.append("g")
+            .attr("class", "axis")
+            .attr('id', 'yAxis')
+            .call(yAxis)
+            .attr("transform", "translate("+ margin.left +","+ margin.bottom +")")
+            .append("text")
+            .attr('id', 'title')
+            .attr("transform", "translate("+ (w/2 - margin.left - margin.right) +',' + (-margin.bottom - 10) +")")
+            .attr("y", 15).attr("dy", ".71em")
+            .attr("font-family", "sans-serif")
+            .attr("font-size", "40px")
+            .text("Monthly Temperature: " + year);
+            
+            var button = document.getElementById('Year');
+
+            button.onclick = function() {
+                if(year < 2015){
+                    year += 1;
+                }else{
+                    year = 2011;
+                }
+                    button.innerHTML = "Click to Change Year: " + year;            
+        //d3.select('p').on('click', function(year){
+                console.log(year)
+
+                    months = Object.getOwnPropertyNames(weatherbymonth[year]);
+                    temp = Object.values(weatherbymonth[year]);
+                    temp_ =  temp.map(function(x){return x*scalar}) 
+
+                    d3.selectAll("body").select("p#p2").text("Temperature: " + temp);
+
+                    svg.selectAll("rect").data(temp_)
+                        .attr("x", function(d, i) {
+                            return margin.left + i*(w / temp.length); 
+                        })
+                        .attr("y", function(d) {
+                            return h - d + margin.bottom; 
+                        })
+                        .attr("height", function(d) {
+                            return d; 
+                        })
+                        .attr("width", xScale.rangeBand()); 
+
+                    yScale.domain([0, d3.max(temp)]).range([300,0]);
+                    yAxis.scale(yScale);
+
+                    svg.select("g#yAxis")
+                        .call(yAxis)
+                        .attr("transform", "translate("+ margin.left +","+ margin.bottom +")")
+                        .select("text#title")
+                        .attr("transform", "translate("+ (w/2 - margin.left - margin.right) +',' + (-margin.bottom-9) +")")
+                        .attr("y", 10).attr("dy", ".71em")
+                        .attr("font-family", "sans-serif")
+                        .attr("font-size", "40px")
+                        .text("Monthly Temperature: " + year);
+            };
+
+        });
+        
+        //console.log(data)
+ /*       function getCol(matrix, col){
          var column = [];
          for(var i=0; i<matrix.length; i++){
            column.push(matrix[i][col]);
@@ -49,63 +218,76 @@
         }
         
         var months = getCol(data,"month");
-        var temp = getCol(data,"temperature");
+        var temp = getCol(data,"temperature"); */
 
-        var p1 = d3.select("body").append("p").text("Months: " + months);
-        var p2 = d3.select("body").append("p").text("Temperature: " + temp);
+       // var p1 = d3.select("body").append("p").text("Months: " + months);
+       // var p2 = d3.select("body").append("p").text("Temperature: " + temp);
         
         //Step 3: Bar chart skeleton 
             //Step 3.1: Create Scalable Vector Graphic for bar chart
-            var margin = {top:10, right:10, bottom:90, left:10}; //margins for axes
-            var w = 500 - margin.left - margin.right; 
-            var h = 200 - margin.top - margin.bottom;
-
+        /*    var margin = {top:30, right:10, bottom:50, left:20}; //margins for axes
+            var w = 500; 
+            var scalar = 6;
+            var temp_ =  temp.map(function(x){return x*scalar}) //scale all elements to enlarge the bars in the plot
+            var h = d3.max(temp_) ;
+        
             var svg = d3.select("body").append("svg")
             .attr("width", w + margin.left + margin.right)
             .attr("height", h + margin.top + margin.bottom);
                
                 //Setting up Scales 
-                var yScale = d3.scale.linear().domain([0, d3.max(temp)]).range([0,h]);
+                var yScale = d3.scale.linear().domain([0, d3.max(temp)]).range([h,0]);
                 var xScale = d3.scale.ordinal().rangeRoundBands([0, w])
-
+       
                 xScale.domain(data.map(function(d) { return d.month; }));
 
-            svg.selectAll("rect").data(temp).enter().append("rect") //Step 3.3: Create one rectangle for each data point we want to visualize
+            svg.selectAll("rect").data(temp_).enter().append("rect") //Step 3.3: Create one rectangle for each data point we want to visualize
             .attr("x", function(d, i) {
-                    return i *(w / temp.length); 
+                    return margin.left + i*(w / temp.length); 
                     })//Step 3.4: Visualize all rectangles by moving across the x-axis
-            .attr("y", 0)
-            .attr("width", 20)
-            .attr("height", function(d) {
-                   return d * 5; 
-                   })
             .attr("y", function(d) {
-                return h - yScale(d); 
-                });//Step 3.5: Inverse table for user
+                return h - d + margin.bottom; 
+            })//Step 3.5: Inverse table for user
+            .attr("height", function(d) {
+                   return d; //Note that if we would apply scaling at this point, given that there is a margin, the bars would not be aligned.
+            })
+            .attr("width", xScale.rangeBand()); //In this case, the in-built function rangeBand() helps define proper widths for each category
+        
 
             //Extra: Add value labels
-            svg.selectAll("text").data(temp).enter().append("text")
+            svg.selectAll("text").data(data).enter().append("text")
             .text(function(d) {
-                return d;
+                return d.temperature;
                 })
-            .attr("x", function(d, i) {
-                return i * (w / temp.length); // +5
+            .attr("x", function(d) {
+                return xScale(d.month) + xScale.rangeBand() / 2 +14; // x-position of white labels 
                 })
             .attr("y", function(d) {
-                return h - d; 
+                return h - d.temperature*6 + margin.bottom -5; 
                 })
-            .attr("fill", "white");
+            .attr("fill", "black");
 
             //x-Axis
             var xAxis = d3.svg.axis().scale(xScale).orient("bottom");
             var yAxis = d3.svg.axis().scale(yScale).orient("left");
 
             svg.append("g")
-            .attr("class", "axis") //Assign "axis" class
-            .attr("transform", "translate(0," + (h) + ")")
-            .call(xAxis);
+            .attr("class", "axis") //Assign "axis" class -> in this way the stetics of the axis can be modified with CSS
+            .call(xAxis)
+            .attr("transform", "translate("+ margin.left + "," + (h + margin.bottom) + ")"); //Note: it is important to define operations within parenthesis!
 
-
+            svg.append("g")
+            .attr("class", "axis")
+            .call(yAxis)
+            .attr("transform", "translate("+ margin.left +","+ margin.bottom +")")
+            .append("text")
+            .attr("transform", "translate("+ (w/2 - margin.left - margin.right) +',' + (-margin.bottom) +")")
+            .attr("y", 10).attr("dy", ".71em")
+            .attr("font-family", "sans-serif")
+            .attr("font-size", "40px")
+            .text("Monthly Temperature");
+        */
+            
       </script>
 
     </body>
