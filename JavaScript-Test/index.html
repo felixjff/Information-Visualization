@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+
+    <head>
+        <script src="index.js"></script> <!--Open D3.js Library-->
+        <script type="text/javascript">
+         loadScript();
+
+         var Boolean = true;
+         var String = "hi";
+         var Integer = 4;
+         var Array = [1,2,3];
+         
+         console.log("Boolean has value " + Boolean);
+         console.log("String has value " + String);
+         console.log("Integer has value " + Integer);
+         console.log("Array has value " + Array);
+        </script>
+
+        <p>
+         Q1: What are the possible ways to compare two variables in JavaScript? 
+            Can variables with the same value still not be equal?
+           
+            Answer: In JavaScript variables can be compared based on their value and their 
+               type. Hence, if we have a numeric variable with value 4 and a string with
+               value 4. The varables can still be different.  
+        
+       </p>
+
+       <script type="text/javascript">
+        //Define arrays with 10 elements
+        var array1 = [1,2,3,4,5,6,7,8,9,10];
+        var array2 = [1,2,3,4,5,6,7,8,9,10];
+        var array3 = [0,0,0,0,0];
+        
+        for(var i = 0; i<array3.length;i++){
+            //Add every second element
+            array3[i] = array2[i*2] + array1[i*2];
+            //Print array in console
+            console.log(array3[i]);
+        };
+
+        //Print array in console
+        console.log(array3);
+        </script>
+
+        <p>
+        Q2. Observe the code snippet below and determine the output of the 
+        function call. 
+          
+           Answer: There are two functions being called. The first function f(), 
+           will return the variable type of f(). However, f() is a function. 
+           Hence, that call will return "undefined". The second function function(),
+           returns 1, which is numeric. Hence, the function will return "number".
+         </p>
+
+        <script type="text/javascript">
+       //Function to print all numbers in a specified range 
+       function printRange(range_start, range_end){
+           //Print numbers within range. Use modular to check residual condition.
+           var m = 1;
+           while(range_start + m < range_end){
+               if((range_start + m)%3 == 0){
+                console.log("Info");
+               }else if((range_start + m)%5 == 0){
+                console.log("Viz");
+               }else if((range_start + m)%5 == 0 && (range_start + m)%3 == 0){
+                console.log("InfoViz");   
+               }else{
+                console.log(range_start + m);
+               }
+                m = m + 1;
+           };
+       };
+        </script>
+
+
+    </head>
+
+    <body>
+      <script type="text/javascript">
+
+      </script>
+
+    </body>
+
+
+</html>
